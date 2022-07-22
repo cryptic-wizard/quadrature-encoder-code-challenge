@@ -95,7 +95,7 @@ error_count = 0
 with open(file_name, "r") as sensor_data:
     # Parse each point and add to ring buffer
     for line in sensor_data:
-        print(line, end='')
+        #print(line, end='')
         raw_point = Point.parse(line)
         points.append(raw_point)
         points_ring_buffer.append(raw_point)
@@ -114,20 +114,17 @@ with open(file_name, "r") as sensor_data:
             # Initialize pot start location
             if (pot_start == -1):
                 pot_start = midpoint.pot_roll_avg
-                print("Potentiometer start set to " + str(pot_start))
+                #print("Potentiometer start set to " + str(pot_start))
 
             # Set expected pot value and check for error
             midpoint.pot_expected = pot_start + (midpoint.encoder_roll_avg*pot_res/encoder_res/gear_ratio)
             midpoint.error = float((midpoint.pot_expected - midpoint.pot_roll_avg)/pot_res*100)
             lower_limit = float(midpoint.pot_roll_avg - pot_allowed_error)
             upper_limit = float(midpoint.pot_roll_avg + pot_allowed_error)
-            print("\t\tUpper Limit = " + str(upper_limit))
-            print("\t\tExpected is = " + str(midpoint.pot))
-            print("\t\tLower Limit = " + str(lower_limit))
             if (midpoint.pot < lower_limit or midpoint.pot> upper_limit):
                 midpoint.error_detected = 'True'
                 error_count += 1
-            midpoint.print()
+            #midpoint.print()
     
     # Report error percentage and pass/fail
     error_percent = float(error_count / len(points))
