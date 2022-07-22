@@ -1,0 +1,24 @@
+name: Python 3.9
+on: [push]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Check for Python Syntax Errors w/flake8
+        run: |
+          pip install flake8
+          # Fail the build if there are Python syntax errors or undefined names
+          flake8 . --count --statistics --show-source --select=E9,F63,F7,F82 
+      - name: Check for Python Syntax Warnings w/flake8
+        run: |
+          # exit-zero disables 
+          flake8 . --count --statistics --exit-zero --select=E712,F401
