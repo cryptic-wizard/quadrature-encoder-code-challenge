@@ -1,9 +1,9 @@
 import sys
 from os.path import exists
 
-header = ['time','encoder','potentiometer']
-
+# Holds raw data and intermediate calculations for a single point
 class Point:
+    # Variables
     time = -1
     encoder = -1
     encoder_roll_avg = -1
@@ -23,6 +23,7 @@ class Point:
         print("\terror = " + str(self.error) + " %")
         print("\terror_detected = " + str(self.error_detected))
 
+    # Converts txt line into a point
     def parse(line):
         values = line.split()
         if len(values) != 3:
@@ -67,6 +68,9 @@ error_threshold = 0.1   # percentage of points allowed to error for a single fil
 
 # Variables
 pot_start = -1
+encoder_sum = -1
+pot_sum = -1
+error_count = 0
 
 # Quit program if wrong number of arguments
 if len(sys.argv) != 2:
@@ -77,7 +81,8 @@ if len(sys.argv) != 2:
 # Quit program if file does not exist
 file_name = sys.argv[1]
 if not exists(file_name):
-    print(file_name + " does not exist")
+    print("Error: " + file_name + " does not exist")
+    print("Example: main.py my-sensor-data.txt")
     quit()
 
 # Quit program if file is the wrong type
@@ -89,9 +94,6 @@ if not file_name.__contains__(".txt"):
 # Main
 points_ring_buffer = RingBuffer(roll_avg_count)
 points = list()
-encoder_sum = -1
-pot_sum = -1
-error_count = 0
 lower_error_limit = -1 * pot_allowed_error
 upper_error_limit = pot_allowed_error
 
