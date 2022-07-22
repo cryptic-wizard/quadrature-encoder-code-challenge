@@ -58,11 +58,12 @@ class RingBuffer:
 
 # Constants
 degrees = 360
-roll_avg_count = 10
 gear_ratio = 30
 encoder_res = 2048
 pot_res = 256
-pot_allowed_error = 5
+roll_avg_count = 10     # size of rolling average window
+pot_allowed_error = 5   # percentage of error allowed for a single point
+error_threshold = 0.1   # percentage of points allowed to error for a single file
 
 # Variables
 pot_start = -1
@@ -81,7 +82,8 @@ if not exists(file_name):
 
 # Quit program if file is the wrong type
 if not file_name.__contains__(".txt"):
-    print(file_name + " is not a .txt")
+    print("Error: expected .txt file")
+    print("Example: main.py my-sensor-data.txt")
     quit()
 
 # Main
@@ -89,8 +91,9 @@ points_ring_buffer = RingBuffer(roll_avg_count)
 points = list()
 encoder_sum = -1
 pot_sum = -1
-error_threshold = 0.0
 error_count = 0
+lower_error_limit = -1 * pot_allowed_error
+upper_error_limit = pot_allowed_error
 
 with open(file_name, "r") as sensor_data:
     # Parse each point and add to ring buffer
@@ -119,15 +122,13 @@ with open(file_name, "r") as sensor_data:
             # Set expected pot value and check for error
             midpoint.pot_expected = pot_start + (midpoint.encoder_roll_avg*pot_res/encoder_res/gear_ratio)
             midpoint.error = float((midpoint.pot_expected - midpoint.pot_roll_avg)/pot_res*100)
-            lower_limit = float(midpoint.pot_roll_avg - pot_allowed_error)
-            upper_limit = float(midpoint.pot_roll_avg + pot_allowed_error)
-            if (midpoint.pot < lower_limit or midpoint.pot> upper_limit):
+            if (midpoint.error < lower_error_limit or midpoint.error > upper_error_limit):
                 midpoint.error_detected = 'True'
                 error_count += 1
-            #midpoint.print()
+                #midpoint.print()
     
     # Report error percentage and pass/fail
-    error_percent = float(error_count / len(points))
+    error_percent = float(error_count / len(points)*100)
     print (file_name + " --> " + str(error_percent) + " % points were expected error")
     if (error_percent > error_threshold):
         print (file_name + " --> Sensor error detected")
