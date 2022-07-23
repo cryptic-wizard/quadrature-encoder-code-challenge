@@ -8,11 +8,11 @@ class Point:
     '''
     Holds raw data and intermediate calculations for a single sensor point
     '''
-    def __init__(self):
-        self.time = -1
-        self.encoder = -1
+    def __init__(self, time, encoder, pot):
+        self.time = time
+        self.encoder = encoder
         self.encoder_roll_avg = -1
-        self.pot = -1
+        self.pot = pot
         self.pot_roll_avg = -1
         self.pot_expected = -1
         self.error = -1
@@ -31,8 +31,8 @@ class Point:
         print("\terror = " + str(self.error) + " %")
         print("\terror_detected = " + str(self.error_detected))
 
-    @staticmethod
-    def parse(line):
+    @classmethod
+    def parse(cls, line):
         '''
         Converts a .txt line into a point
 
@@ -46,11 +46,10 @@ class Point:
             print("Error: expected columns is 3 but was " + str(len(values)))
             return
         try:
-            point = Point()
-            point.time = float(values[0])
-            point.encoder = int(values[1])
-            point.pot = int(values[2])
-            return point
+            time = float(values[0])
+            encoder = int(values[1])
+            pot = int(values[2])
+            return cls(time, encoder, pot)
         except ValueError:
             return
 

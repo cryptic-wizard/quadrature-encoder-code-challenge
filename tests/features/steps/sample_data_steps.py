@@ -16,12 +16,12 @@ def when_i_check_if_x_is_valid(context, file_name):
 
 @when('I calculate the SMA of {array}')
 def when_i_calculate_the_SMA_of_x(context, array):
+    array = array.split(',')
     context.ring_buffer = RingBuffer(len(array))
     for value in array:
-        point = Point()
-        point.encoder = value
-        point.pot = value
-        context.ring_buffer.append(Point())
+        print(str(value))
+        point = Point(0, int(value), int(value))
+        context.ring_buffer.append(point)
     assert(len(context.ring_buffer.values) == len(array))
     context.point = simple_moving_avg(context.ring_buffer)
 

@@ -6,6 +6,7 @@ Scenario Outline: Sample data is evaluated correctly
 
     Examples:
     | file_name                 | truthiness |
+    | sample_data/perfect.txt   | is         |
     | sample_data/normal.txt    | is         |
     | sample_data/error.txt     | is not     |
 
@@ -14,6 +15,6 @@ Scenario Outline: Point SMA is calculated correctly
     Then the SMA is <sma>
 
     Examples:
-    | array               | sma  |
-    | {7,8,9,10}          | 8.5  |
-    | {42,43,44,45,46,47} | 44.5 |
+    | array             | sma  |
+    | 7,8,9,10          | 8.5  |
+    | 42,43,44,45,46,47 | 44.5 |
