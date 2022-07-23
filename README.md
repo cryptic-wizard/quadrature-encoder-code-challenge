@@ -6,8 +6,9 @@
 
 ## Usage
 ```
-py main.py my-sensor-data.txt
+py check_sensor_valid.py sensor_data.txt
 ```
 
 ## Tools
 * [Python 3.10.5](https://www.python.org/downloads/)
+* [inkpot](https://pypi.org/project/inkpot/)

@@ -1,8 +1,9 @@
-# os is used to find csv files in the sample-data directory
-#   without needing to hard-code file names
+# csv-to-txt.py
 import os
 
-# Converts comma-separated .csv files into space-separated .txt files
+'''
+Converts comma-separated .csv files into space-separated .txt files
+'''
 def to_text(csv_file):
     txt_file = csv_file.replace(".csv", ".txt")
     with open(csv_file, 'r') as to_read:
