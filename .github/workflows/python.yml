@@ -27,3 +27,10 @@ jobs:
           pip install behave
           cd tests
           behave
+      - if: success() || failure()
+        name: Upload Behave Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: behave_results
+          path: |
+            tests/plain.output
