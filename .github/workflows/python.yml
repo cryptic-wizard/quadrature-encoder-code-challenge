@@ -22,3 +22,8 @@ jobs:
         run: |
           # exit-zero disables 
           flake8 . --count --statistics --exit-zero --select=E712,F401
+      - name: Run Behave Tests
+        run: |
+          pip install behave
+          cd tests
+          behave
