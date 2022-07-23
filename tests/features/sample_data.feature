@@ -1,13 +1,19 @@
 Feature: Sample Data
 
-Scenario: Perfect sample data is valid
-    Given I check if sample_data/perfect.txt is valid
-    Then the sample data is valid
+Scenario Outline: Sample data is evaluated correctly
+    When I check if <file_name> is valid
+    Then the sample data <truthiness> valid
 
-Scenario: Normal sample data is valid
-    Given I check if sample_data/normal.txt is valid
-    Then the sample data is valid
+    Examples:
+    | file_name                 | truthiness |
+    | sample_data/normal.txt    | is         |
+    | sample_data/error.txt     | is not     |
 
-Scenario: Error sample data is not valid
-    Given I check if sample_data/error.txt is valid
-    Then the sample data is not valid
+Scenario Outline: Point SMA is calculated correctly
+    When I calculate the SMA of <array>
+    Then the SMA is <sma>
+
+    Examples:
+    | array               | sma  |
+    | {7,8,9,10}          | 8.5  |
+    | {42,43,44,45,46,47} | 44.5 |

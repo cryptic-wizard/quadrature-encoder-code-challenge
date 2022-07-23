@@ -170,6 +170,7 @@ def is_sensor_data_valid(file_name):
                 # Initialize pot start location and simple moving average
                 if (pot_start == -1):
                     point = Point.simple_moving_avg(points_ring_buffer)
+                    point.encoder_roll_avg = 0
                     points_ring_buffer.values[points_ring_buffer.size - 1] = point
                     pot_start = point.pot_roll_avg
                     #print("Potentiometer start set to " + str(pot_start))
@@ -206,24 +207,24 @@ def get_file_from_args(args):
     # Quit program if wrong number of arguments
     if len(args) != 2:
         print("Error: expected arguments is 1 but was " + str(len(args)-1))
-        print("Example: main.py my-sensor-data.txt")
+        print("Example: check_sensor_valid.py my_sensor_data.txt")
         quit()
 
     # Quit program if file does not exist
     file_name = args[1]
     if not exists(file_name):
         print("Error: " + file_name + " does not exist")
-        print("Example: main.py my-sensor-data.txt")
+        print("Example: check_sensor_valid.py my_sensor_data.txt")
         quit()
 
     # Quit program if file is the wrong type
     if not file_name.__contains__(".txt"):
         print("Error: expected .txt file")
-        print("Example: main.py my-sensor-data.txt")
+        print("Example: check_sensor_valid.py my_sensor_data.txt")
         quit()
     else:
         return file_name
 
-file_name = get_file_from_args(argv)
-is_sensor_data_valid(file_name)
-help()
+if (len(argv) != 0 and argv[0] == "check_sensor_valid.py"):
+    file_name = get_file_from_args(argv)
+    is_sensor_data_valid(file_name)
