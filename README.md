@@ -13,3 +13,6 @@ py check_sensor_valid.py sensor_data.txt
 * [Python 3.10.5](https://www.python.org/downloads/)
 * [inkpot](https://pypi.org/project/inkpot/)
 * [Behave](https://behave.readthedocs.io/en/stable/api.html)
+
+## License
+* [MIT License](https://github.com/cryptic-wizard/quadrature-encoder-code-challenge/blob/main/LICENSE.md)
