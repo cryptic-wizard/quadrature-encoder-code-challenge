@@ -23,7 +23,7 @@ def when_i_calculate_the_SMA_of_x(context, array):
         point.pot = value
         context.ring_buffer.append(Point())
     assert(len(context.ring_buffer.values) == len(array))
-    context.point = Point.simple_moving_avg(context.ring_buffer)
+    context.point = simple_moving_avg(context.ring_buffer)
 
 @then("the sample data {truthiness} valid")
 def then_the_same_data_x_valid(context, truthiness):

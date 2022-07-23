@@ -4,6 +4,9 @@
 # Behave Test Output
 *.output
 
+# Visual Studio User Settings
+*.vs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

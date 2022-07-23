@@ -1,9 +1,8 @@
-# csv-to-txt.py
-import os
-
 '''
 Converts comma-separated .csv files into space-separated .txt files
 '''
+import os
+
 def to_text(csv_file):
     txt_file = csv_file.replace(".csv", ".txt")
     with open(csv_file, 'r') as to_read:

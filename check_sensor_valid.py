@@ -1,23 +1,24 @@
-from sys import argv
-from os.path import exists
 '''
 A command line tool to determine if quadrature encoder sensor data is valid
 '''
+from sys import argv
+from os.path import exists
 
 class Point:
     '''
     Holds raw data and intermediate calculations for a single sensor point
     '''
-    time = -1
-    encoder = -1
-    encoder_roll_avg = -1
-    pot = -1
-    pot_roll_avg = -1
-    pot_expected = -1
-    error = -1
-    error_detected = False
+    def __init__(self):
+        self.time = -1
+        self.encoder = -1
+        self.encoder_roll_avg = -1
+        self.pot = -1
+        self.pot_roll_avg = -1
+        self.pot_expected = -1
+        self.error = -1
+        self.error_detected = False
 
-    def print(self):
+    def point_print(self):
         '''
         Print sensor point member variables to command line
         '''
@@ -53,51 +54,10 @@ class Point:
         except ValueError:
             return
 
-    @staticmethod
-    def simple_moving_avg(points_ring_buffer):
-        '''
-        Calculates the simple moving average for sensor points
-
-        Parameters:
-            points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages
-        Returns:
-            Point
-        '''
-        encoder_sum = 0
-        pot_sum = 0
-        for point in points_ring_buffer.values:
-            encoder_sum += point.encoder
-            pot_sum += point.pot
-        point = points_ring_buffer.values[points_ring_buffer.size - 1]
-        point.encoder_roll_avg = encoder_sum / points_ring_buffer.size
-        point.pot_roll_avg = pot_sum / points_ring_buffer.size
-        return point
-
-    @staticmethod
-    def exponenial_moving_avg(points_ring_buffer):
-        '''
-        Calculates the exponential moving average for sensor points
-        
-        Parameters:
-            points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages
-        Returns:
-            Point
-        '''
-        k = 2/(points_ring_buffer.size + 1)
-        current_point = points_ring_buffer.values[points_ring_buffer.size - 1]
-        last_point = points_ring_buffer.values[points_ring_buffer.size - 2]
-        current_point.encoder_roll_avg = k*current_point.encoder + ((1-k) * last_point.encoder_roll_avg)
-        current_point.pot_roll_avg = k*current_point.pot + ((1-k) * last_point.pot_roll_avg)
-        return current_point
-
 class RingBuffer:
     '''
     A generic ring buffer
     '''
-    values = list()
-    size = -1
-    full = False
-
     def __init__(self, size):
         '''
         Constructs a new RingBuffer with the specified size
@@ -105,7 +65,9 @@ class RingBuffer:
         Parameters:
             size (int): size of the ring buffer
         '''
+        self.values = list()
         self.size = size
+        self.full = False
 
     def append(self, to_append):
         '''
@@ -125,6 +87,52 @@ class RingBuffer:
           for each in self.values:
               yield each
 
+# Constants
+DEGREES = 360
+GEAR_RATIO = 30
+ENCODER_RES = 2048
+POT_RES = 256
+ROLL_AVG_COUNT = 10     # size of rolling average window
+POT_ALLOWED_ERROR = 5   # percentage of error allowed for a single point
+ERROR_THRESHOLD = 0.1   # percentage of points allowed to error for a single file
+
+@staticmethod
+def simple_moving_avg(points_ring_buffer):
+    '''
+    Calculates the simple moving average for sensor points
+
+    Parameters:
+        points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages
+    Returns:
+        Point
+    '''
+    encoder_sum = 0
+    pot_sum = 0
+    for point in points_ring_buffer.values:
+        encoder_sum += point.encoder
+        pot_sum += point.pot
+    point = points_ring_buffer.values[points_ring_buffer.size - 1]
+    point.encoder_roll_avg = encoder_sum / points_ring_buffer.size
+    point.pot_roll_avg = pot_sum / points_ring_buffer.size
+    return point
+
+@staticmethod
+def exponenial_moving_avg(points_ring_buffer):
+    '''
+    Calculates the exponential moving average for sensor points
+    
+    Parameters:
+        points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages
+    Returns:
+        Point
+    '''
+    k = 2/(points_ring_buffer.size + 1)
+    current_point = points_ring_buffer.values[points_ring_buffer.size - 1]
+    last_point = points_ring_buffer.values[points_ring_buffer.size - 2]
+    current_point.encoder_roll_avg = k*current_point.encoder + ((1-k) * last_point.encoder_roll_avg)
+    current_point.pot_roll_avg = k*current_point.pot + ((1-k) * last_point.pot_roll_avg)
+    return current_point
+
 def is_sensor_data_valid(file_name):
     '''
     Determines if sensor data is valid by comparing the expected potentiometer output to the actual potentiometer output
@@ -134,14 +142,6 @@ def is_sensor_data_valid(file_name):
     Returns:
         True | False
     '''
-    # Constants
-    degrees = 360
-    gear_ratio = 30
-    encoder_res = 2048
-    pot_res = 256
-    roll_avg_count = 10     # size of rolling average window
-    pot_allowed_error = 5   # percentage of error allowed for a single point
-    error_threshold = 0.1   # percentage of points allowed to error for a single file
 
     # Variables
     pot_start = -1
@@ -151,9 +151,9 @@ def is_sensor_data_valid(file_name):
     error_count = 0
 
     # Main
-    points_ring_buffer = RingBuffer(roll_avg_count)
-    lower_error_limit = -1 * pot_allowed_error
-    upper_error_limit = pot_allowed_error
+    points_ring_buffer = RingBuffer(ROLL_AVG_COUNT)
+    lower_error_limit = -1 * POT_ALLOWED_ERROR
+    upper_error_limit = POT_ALLOWED_ERROR
 
     with open(file_name, "r") as sensor_data:
         # Parse each point and add to ring buffer
@@ -169,26 +169,26 @@ def is_sensor_data_valid(file_name):
             if (points_ring_buffer.full == True):
                 # Initialize pot start location and simple moving average
                 if (pot_start == -1):
-                    point = Point.simple_moving_avg(points_ring_buffer)
+                    point = simple_moving_avg(points_ring_buffer)
                     point.encoder_roll_avg = 0
                     points_ring_buffer.values[points_ring_buffer.size - 1] = point
                     pot_start = point.pot_roll_avg
                     #print("Potentiometer start set to " + str(pot_start))
                 else:
-                    point = Point.exponenial_moving_avg(points_ring_buffer)
+                    point = exponenial_moving_avg(points_ring_buffer)
                     
                 # Set expected pot value and check for error
-                point.pot_expected = pot_start + (point.encoder_roll_avg*pot_res/encoder_res/gear_ratio)
-                point.error = float((point.pot_expected - point.pot_roll_avg)/pot_res*100)
+                point.pot_expected = pot_start + (point.encoder_roll_avg*POT_RES/ENCODER_RES/GEAR_RATIO)
+                point.error = float((point.pot_expected - point.pot_roll_avg)/POT_RES*100)
                 if (point.error < lower_error_limit or point.error > upper_error_limit):
                     point.error_detected = True
                     error_count += 1
-                    #point.print()
+                    #point.point_print()
         
         # Report error percentage and pass/fail
         error_percent = float(error_count / total_points*100)
         print (file_name + " --> " + str(error_percent) + " % points were expected error")
-        if (error_percent > error_threshold):
+        if (error_percent > ERROR_THRESHOLD):
             print (file_name + " --> Sensor error detected")
             return False
         else:
