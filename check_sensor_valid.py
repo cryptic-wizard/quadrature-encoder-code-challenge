@@ -45,13 +45,11 @@ class Point:
         if len(values) != 3:
             print("Error: expected columns is 3 but was " + str(len(values)))
             return
-        try:
-            time = float(values[0])
-            encoder = int(values[1])
-            pot = int(values[2])
-            return cls(time, encoder, pot)
-        except ValueError:
-            return
+
+        time = float(values[0])
+        encoder = int(values[1])
+        pot = int(values[2])
+        return cls(time, encoder, pot)
 
 class RingBuffer:
     '''
@@ -158,8 +156,9 @@ def is_sensor_data_valid(file_name):
         # Parse each point and add to ring buffer
         for line in sensor_data:
             #print(line, end='')
-            raw_point = Point.parse(line)
-            if not raw_point:
+            try:
+                raw_point = Point.parse(line)
+            except ValueError:
                 continue
             points_ring_buffer.append(raw_point)
             total_points += 1
