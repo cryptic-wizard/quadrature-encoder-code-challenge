@@ -3,35 +3,20 @@
 ### class Point()
 `Holds raw data and intermediate calculations for a single sensor point` 
 
-> **def print(self)** \
+> **def \_\_init\_\_(self, time, encoder, pot)** \
+> `None` 
+>
+> **def point_print(self)** \
 > `Print sensor point member variables to command line` 
 >
-> **@staticmethod \
-def parse(line)** \
+> **@classmethod \
+def parse(cls, line)** \
 > `Converts a .txt line into a point` \
 `` \
 `Parameters:` \
 `    line (string): A text file line` \
 `Returns:` \
 `    Point | null` 
->
-> **@staticmethod \
-def simple_moving_avg(points_ring_buffer)** \
-> `Calculates the simple moving average for sensor points` \
-`` \
-`Parameters:` \
-`    points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages` \
-`Returns:` \
-`    Point` 
->
-> **@staticmethod \
-def exponenial_moving_avg(points_ring_buffer)** \
-> `Calculates the exponential moving average for sensor points` \
-`` \
-`Parameters:` \
-`    points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages` \
-`Returns:` \
-`    Point` 
 >
 ### class RingBuffer()
 `A generic ring buffer` 
@@ -51,6 +36,24 @@ def exponenial_moving_avg(points_ring_buffer)** \
 > **def \_\_iter\_\_(self)** \
 > `None` 
 >
+**@staticmethod \
+def simple_moving_avg(points_ring_buffer)** \
+`Calculates the simple moving average for sensor points` \
+`` \
+`Parameters:` \
+`    points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages` \
+`Returns:` \
+`    Point` 
+
+**@staticmethod \
+def exponenial_moving_avg(points_ring_buffer)** \
+`Calculates the exponential moving average for sensor points` \
+`` \
+`Parameters:` \
+`    points_ring_buffer (RingBuffer[Point]): a collection of points to use for rolling averages` \
+`Returns:` \
+`    Point` 
+
 **def is_sensor_data_valid(file_name)** \
 `Determines if sensor data is valid by comparing the expected potentiometer output to the actual potentiometer output` \
 `` \
